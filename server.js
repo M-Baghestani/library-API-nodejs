@@ -2,7 +2,6 @@ const http = require("http");
 const fs = require("fs");
 const url = require("url");
 const db = require("./db.json");
-const { resolveSoa } = require("dns");
 
 const server = http.createServer((req, res) => {
 	if (req.method === "GET" && req.url === "/api/users") {
@@ -261,19 +260,30 @@ const server = http.createServer((req, res) => {
 						const theUser = db.users.filter((user) => user.id == id);
 						const crime = body.crime || theUser[0].crime;
 						const role = body.role || theUser[0].role;
-
-						const userUpdated = {
-							id,
-							crime,
-							role,
-						};
-						const newUserList = db.users.filter((user) => user.id != id);
-						newUserList.push(userUpdated);
-						const newDB = { users: newUserList, books: db.books };
-						fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
-						res.writeHead(201, { "Content-Type": "application/json" });
-						res.write(JSON.stringify({ message: "The User Updated!" }));
-						res.end();
+						if (theUser[0].role === "ADMIN") {
+							res.writeHead(400, { "Content-Type": "application/json" });
+							res.write(
+								JSON.stringify({
+									message: "You Cannot Change The Admin's Info!",
+								})
+							);
+							res.end();
+						} else {
+							const userUpdated = {
+								id,
+								name: theUser[0].name,
+								username: theUser[0].username,
+								crime,
+								role,
+							};
+							const newUserList = db.users.filter((user) => user.id != id);
+							newUserList.push(userUpdated);
+							const newDB = { users: newUserList, books: db.books };
+							fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
+							res.writeHead(201, { "Content-Type": "application/json" });
+							res.write(JSON.stringify({ message: "The User Updated!" }));
+							res.end();
+						}
 					});
 				} else {
 					res.writeHead(201, { "Content-Type": "application/json" });
