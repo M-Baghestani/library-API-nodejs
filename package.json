@@ -8,5 +8,8 @@
   "keywords": [],
   "author": "MhBaaghestani",
   "license": "MIT",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "readme-md-generator": "^1.0.0"
+  }
 }
