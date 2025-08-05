@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const url = require("url");
 const db = require("./db.json");
+const { userInfo } = require("os");
 
 const server = http.createServer((req, res) => {
 	if (req.method === "GET" && req.url === "/api/users") {
@@ -401,6 +402,61 @@ const server = http.createServer((req, res) => {
 				fs.writeFile("db.json", JSON.stringify(newDB), () => {
 					return 0;
 				});
+			}
+		});
+	} else if (req.method === "POST" && req.url.startsWith("/api/makeAdmin")) {
+		fs.readFile("db.json", (err, data) => {
+			if (err) {
+				throw err;
+			}
+			const managerID = url.parse(req.url, true).query.id;
+			const db = JSON.parse(data);
+			const isManagerExist = db.managers.some(
+				(manager) => managerID == manager.id
+			);
+			if (isManagerExist) {
+				let body = "";
+				req.on("data", (chunk) => (body += chunk));
+				req.on("end", () => {
+					const { id, role } = JSON.parse(body);
+					const userINFO = db.users.filter((user) => user.id == id);
+					if (userINFO[0].role != "ADMIN") {
+						const userUpdate = {
+							id,
+							name: userINFO[0].name,
+							username: userINFO[0].username,
+							crime: 0,
+							role,
+						};
+						const newUserList = db.users.filter((user) => user.id != id);
+						newUserList.push(userUpdate);
+						const newDB = {
+							users: newUserList,
+							books: db.books,
+							managers: db.managers,
+						};
+						fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
+						res.writeHead(201, { "Content-Type": "application/json" });
+						res.write(
+							JSON.stringify({ message: "This User Has Been Updated To Admin" })
+						);
+						res.end();
+					} else {
+						res.writeHead(401, { "Content-Type": "application/json" });
+						res.write(
+							JSON.stringify({ message: "This User Is Already Admin" })
+						);
+						res.end();
+					}
+				});
+			} else {
+				res.writeHead(403, { "Content-Type": "application/json" });
+				res.write(
+					JSON.stringify({
+						message: "You Don't Have Permission To Enter This Section!",
+					})
+				);
+				res.end();
 			}
 		});
 	}
