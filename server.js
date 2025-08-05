@@ -14,6 +14,61 @@ const server = http.createServer((req, res) => {
 			res.write(JSON.stringify(convertedData.users));
 			res.end();
 		});
+	} else if (req.method === "POST" && req.url === "/api/books/reserve") {
+		console.log("test");
+		fs.readFile("db.json", (err, data) => {
+			if (err) {
+				throw err;
+			}
+			console.log("First Ok");
+			let body = "";
+			req.on("data", (chunk) => {
+				body += chunk;
+			});
+			req.on("end", () => {
+				const { user_id, book_id, reserve_date, duration_days } =
+					JSON.parse(body);
+				if (!user_id || !book_id || !reserve_date || !duration_days) {
+					res.writeHead(401, { "Content-Type": "application/json" });
+					res.write(JSON.stringify({ message: "Pls Enter Complete Info" }));
+					res.end();
+					console.log("Third Ok");
+				} else {
+					const db = JSON.parse(data);
+					const isFreeBook = db.books.some(
+						(book) => book.id == book_id && book.free == 1
+					);
+					console.log("Fourth Ok");
+
+					if (isFreeBook) {
+						const theBook = db.books.filter((book) => book.id == book_id);
+						theBook[0].free = 0;
+						db.reserves.push({
+							user_id,
+							book_id,
+							reserve_date,
+							duration_days,
+						});
+						console.log("Sixth Ok");
+
+						res.writeHead(201, { "Content-Type": "application/json" });
+						res.write(
+							JSON.stringify({ message: "The Book Successfully Reserved!" })
+						);
+						res.end();
+						fs.writeFile("db.json", JSON.stringify(db), () => 0);
+						console.log("Seventh Ok");
+					} else {
+						res.writeHead(401, { "Content-Type": "application/json" });
+						res.write(
+							JSON.stringify({ message: "The Book Already Reserved!" })
+						);
+						res.end();
+						console.log("Eighth Ok");
+					}
+				}
+			});
+		});
 	} else if (req.method === "GET" && req.url.startsWith("/api/users")) {
 		const userID = url.parse(req.url, true).query.id;
 		fs.readFile("db.json", (err, data) => {
@@ -347,64 +402,6 @@ const server = http.createServer((req, res) => {
 					return 0;
 				});
 			}
-		});
-	} else if (
-		req.method === "POST" &&
-		req.url.startsWith("/api/books/reserve")
-	) {
-		console.log("test");
-		fs.readFile("db.json", (err, data) => {
-			if (err) {
-				throw err;
-			}
-			console.log("First Ok");
-			let body = "";
-			req.on("data", (chunk) => {
-				body += chunk;
-			});
-			req.on("end", () => {
-				const { user_id, book_id, reserve_date, duration_days } =
-					JSON.parse(body);
-				if (!user_id || !book_id || !reserve_date || !duration_days) {
-					res.writeHead(401, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "Pls Enter Complete Info" }));
-					res.end();
-					console.log("Third Ok");
-				} else {
-					const db = JSON.parse(data);
-					const isFreeBook = db.books.some(
-						(book) => book.id == book_id && book.free == 1
-					);
-					console.log("Fourth Ok");
-
-					if (isFreeBook) {
-						const theBook = db.books.filter((book) => book.id == book_id);
-						theBook[0].free = 0;
-						db.reserves.push({
-							user_id,
-							book_id,
-							reserve_date,
-							duration_days,
-						});
-						console.log("Sixth Ok");
-
-						res.writeHead(201, { "Content-Type": "application/json" });
-						res.write(
-							JSON.stringify({ message: "The Book Successfully Reserved!" })
-						);
-						res.end();
-						fs.writeFile("db.json", JSON.stringify(db), () => 0);
-						console.log("Seventh Ok");
-					} else {
-						res.writeHead(401, { "Content-Type": "application/json" });
-						res.write(
-							JSON.stringify({ message: "The Book Already Reserved!" })
-						);
-						res.end();
-						console.log("Eighth Ok");
-					}
-				}
-			});
 		});
 	}
 });
