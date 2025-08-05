@@ -35,7 +35,21 @@
 			"title": "Mohammad Hossein",
 			"author": "TEST",
 			"price": 2,
-			"free": 1
+			"free": 0
+		}
+	],
+	"reserves": [
+		{
+			"user_id": 12345,
+			"book_id": "978-964-369-945-0",
+			"reserve_date": "2025-08-05",
+			"duration_days": 7
+		},
+		{
+			"user_id": "2",
+			"book_id": "1",
+			"reserve_date": "2025-08-05",
+			"duration_days": "5"
 		}
 	]
 }
