@@ -3,6 +3,7 @@ const fs = require("fs");
 const url = require("url");
 const db = require("./db.json");
 const wrr = require("./funcs/writeFunc.js");
+const { readDB, writeDB } = require("./funcs/dbhelper.js");
 
 const server = http.createServer((req, res) => {
 	if (req.method === "GET" && req.url === "/api/users") {
@@ -58,7 +59,8 @@ const server = http.createServer((req, res) => {
 							{ "Content-Type": "application/json" },
 							JSON.stringify({ message: "The Book Successfully Reserved!" })
 						);
-						fs.writeFile("db.json", JSON.stringify(db), () => 0);
+						// fs.writeFile("db.json", JSON.stringify(db), () => 0);
+						writeDB(db);
 					} else {
 						wrr(
 							res,
@@ -169,7 +171,8 @@ const server = http.createServer((req, res) => {
 							{ "Content-Type": "application/json" },
 							JSON.stringify({ message: "The User Successfully Added!" })
 						);
-						fs.writeFileSync("db.json", JSON.stringify(db));
+						// fs.writeFileSync("db.json", JSON.stringify(db));
+						writeDB(db);
 					} else {
 						wrr(
 							res,
@@ -219,9 +222,7 @@ const server = http.createServer((req, res) => {
 						);
 						const db = JSON.parse(data);
 						db.books.push(newBook);
-						fs.writeFile("db.json", JSON.stringify(db), () => {
-							return 0;
-						});
+						writeDB(db);
 					}
 				}
 			});
@@ -271,9 +272,7 @@ const server = http.createServer((req, res) => {
 						reserves: db.reserves,
 						managers: db.managers,
 					};
-					fs.writeFile("db.json", JSON.stringify(newDB), () => {
-						return 0;
-					});
+					writeDB(newDB);
 					wrr(
 						res,
 						201,
@@ -335,9 +334,7 @@ const server = http.createServer((req, res) => {
 								reserves: db.reserves,
 								managers: db.managers,
 							};
-							fs.writeFile("db.json", JSON.stringify(newDB), () => {
-								return 0;
-							});
+							writeDB(newDB);
 							wrr(
 								res,
 								201,
@@ -383,7 +380,7 @@ const server = http.createServer((req, res) => {
 								reserves: db.reserves,
 								managers: db.managers,
 							};
-							fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
+							writeDB(newDB);
 							wrr(
 								res,
 								201,
@@ -440,9 +437,7 @@ const server = http.createServer((req, res) => {
 					reserves: db.reserves,
 					managers: db.managers,
 				};
-				fs.writeFile("db.json", JSON.stringify(newDB), () => {
-					return 0;
-				});
+				writeDB(newDB);
 				wrr(
 					res,
 					201,
@@ -486,9 +481,7 @@ const server = http.createServer((req, res) => {
 					reserves: db.reserves,
 					managers: db.managers,
 				};
-				fs.writeFile("db.json", JSON.stringify(newDB), () => {
-					return 0;
-				});
+				writeDB(newDB);
 			}
 		});
 	} else if (req.method === "POST" && req.url.startsWith("/api/makeAdmin")) {
@@ -520,10 +513,10 @@ const server = http.createServer((req, res) => {
 						const newDB = {
 							users: newUserList,
 							books: db.books,
-							reserves:db.reserves,
+							reserves: db.reserves,
 							managers: db.managers,
 						};
-						fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
+						writeDB(newDB);
 						wrr(
 							res,
 							201,
