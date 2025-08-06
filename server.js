@@ -16,12 +16,10 @@ const server = http.createServer((req, res) => {
 			res.end();
 		});
 	} else if (req.method === "POST" && req.url === "/api/books/reserve") {
-		console.log("test");
 		fs.readFile("db.json", (err, data) => {
 			if (err) {
 				throw err;
 			}
-			console.log("First Ok");
 			let body = "";
 			req.on("data", (chunk) => {
 				body += chunk;
@@ -33,13 +31,11 @@ const server = http.createServer((req, res) => {
 					res.writeHead(401, { "Content-Type": "application/json" });
 					res.write(JSON.stringify({ message: "Pls Enter Complete Info" }));
 					res.end();
-					console.log("Third Ok");
 				} else {
 					const db = JSON.parse(data);
 					const isFreeBook = db.books.some(
 						(book) => book.id == book_id && book.free == 1
 					);
-					console.log("Fourth Ok");
 
 					if (isFreeBook) {
 						const theBook = db.books.filter((book) => book.id == book_id);
@@ -50,7 +46,6 @@ const server = http.createServer((req, res) => {
 							reserve_date,
 							duration_days,
 						});
-						console.log("Sixth Ok");
 
 						res.writeHead(201, { "Content-Type": "application/json" });
 						res.write(
@@ -58,14 +53,12 @@ const server = http.createServer((req, res) => {
 						);
 						res.end();
 						fs.writeFile("db.json", JSON.stringify(db), () => 0);
-						console.log("Seventh Ok");
 					} else {
 						res.writeHead(401, { "Content-Type": "application/json" });
 						res.write(
 							JSON.stringify({ message: "The Book Already Reserved!" })
 						);
 						res.end();
-						console.log("Eighth Ok");
 					}
 				}
 			});
