@@ -265,7 +265,12 @@ const server = http.createServer((req, res) => {
 						free: theBook[0].free,
 					};
 					newDBWithoutTheBook.push(newBookVersion);
-					const newDB = { users: db.users, books: newDBWithoutTheBook };
+					const newDB = {
+						users: db.users,
+						books: newDBWithoutTheBook,
+						reserves: db.reserves,
+						managers: db.managers,
+					};
 					fs.writeFile("db.json", JSON.stringify(newDB), () => {
 						return 0;
 					});
@@ -324,7 +329,12 @@ const server = http.createServer((req, res) => {
 							};
 							const newUsersList = db.users.filter((user) => user.id != userID);
 							newUsersList.push(theNewUser);
-							const newDB = { users: newUsersList, books: db.books };
+							const newDB = {
+								users: newUsersList,
+								books: db.books,
+								reserves: db.reserves,
+								managers: db.managers,
+							};
 							fs.writeFile("db.json", JSON.stringify(newDB), () => {
 								return 0;
 							});
@@ -367,7 +377,12 @@ const server = http.createServer((req, res) => {
 							};
 							const newUserList = db.users.filter((user) => user.id != id);
 							newUserList.push(userUpdated);
-							const newDB = { users: newUserList, books: db.books };
+							const newDB = {
+								users: newUserList,
+								books: db.books,
+								reserves: db.reserves,
+								managers: db.managers,
+							};
 							fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
 							wrr(
 								res,
@@ -419,7 +434,12 @@ const server = http.createServer((req, res) => {
 				);
 			} else {
 				const newUsers = db.users.filter((user) => user.id != userID);
-				const newDB = { users: newUsers, books: db.books };
+				const newDB = {
+					users: newUsers,
+					books: db.books,
+					reserves: db.reserves,
+					managers: db.managers,
+				};
 				fs.writeFile("db.json", JSON.stringify(newDB), () => {
 					return 0;
 				});
@@ -460,7 +480,12 @@ const server = http.createServer((req, res) => {
 						message: "The Book Has Been Successfully Deleted!",
 					})
 				);
-				const newDB = { users: db.users, books: newBooksList };
+				const newDB = {
+					users: db.users,
+					books: newBooksList,
+					reserves: db.reserves,
+					managers: db.managers,
+				};
 				fs.writeFile("db.json", JSON.stringify(newDB), () => {
 					return 0;
 				});
@@ -495,6 +520,7 @@ const server = http.createServer((req, res) => {
 						const newDB = {
 							users: newUserList,
 							books: db.books,
+							reserves:db.reserves,
 							managers: db.managers,
 						};
 						fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
