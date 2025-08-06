@@ -2,7 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const url = require("url");
 const db = require("./db.json");
-const { userInfo } = require("os");
+const wrr = require("./funcs/writeFunc.js");
 
 const server = http.createServer((req, res) => {
 	if (req.method === "GET" && req.url === "/api/users") {
@@ -11,9 +11,12 @@ const server = http.createServer((req, res) => {
 				throw err;
 			}
 			const convertedData = JSON.parse(data);
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.write(JSON.stringify(convertedData.users));
-			res.end();
+			wrr(
+				res,
+				200,
+				{ "Content-Type": "application/json" },
+				JSON.stringify(convertedData.users)
+			);
 		});
 	} else if (req.method === "POST" && req.url === "/api/books/reserve") {
 		fs.readFile("db.json", (err, data) => {
@@ -28,9 +31,12 @@ const server = http.createServer((req, res) => {
 				const { user_id, book_id, reserve_date, duration_days } =
 					JSON.parse(body);
 				if (!user_id || !book_id || !reserve_date || !duration_days) {
-					res.writeHead(401, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "Pls Enter Complete Info" }));
-					res.end();
+					wrr(
+						res,
+						400,
+						{ "Content-Type": "application/json" },
+						JSON.stringify({ message: "Pls Enter Your Info Completely" })
+					);
 				} else {
 					const db = JSON.parse(data);
 					const isFreeBook = db.books.some(
@@ -46,19 +52,20 @@ const server = http.createServer((req, res) => {
 							reserve_date,
 							duration_days,
 						});
-
-						res.writeHead(201, { "Content-Type": "application/json" });
-						res.write(
+						wrr(
+							res,
+							201,
+							{ "Content-Type": "application/json" },
 							JSON.stringify({ message: "The Book Successfully Reserved!" })
 						);
-						res.end();
 						fs.writeFile("db.json", JSON.stringify(db), () => 0);
 					} else {
-						res.writeHead(401, { "Content-Type": "application/json" });
-						res.write(
+						wrr(
+							res,
+							409,
+							{ "Content-Type": "application/json" },
 							JSON.stringify({ message: "The Book Already Reserved!" })
 						);
-						res.end();
 					}
 				}
 			});
@@ -75,13 +82,19 @@ const server = http.createServer((req, res) => {
 			});
 			console.log(result);
 			if (result.length > 0) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.write(JSON.stringify(result));
-				res.end();
+				wrr(
+					res,
+					200,
+					{ "Content-Type": "application/json" },
+					JSON.stringify(result)
+				);
 			} else {
-				res.writeHead(409, { "Content-Type": "application/json" });
-				res.write(JSON.stringify({ message: "You Must Enter a Valid Value" }));
-				res.end();
+				wrr(
+					res,
+					400,
+					{ "Content-Type": "application/json" },
+					JSON.stringify({ message: "You Must Enter a Valid Value" })
+				);
 			}
 		});
 	} else if (req.method === "GET" && req.url === "/api/books") {
@@ -90,9 +103,12 @@ const server = http.createServer((req, res) => {
 				throw err;
 			}
 			const db = JSON.parse(data);
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.write(JSON.stringify(db.books));
-			res.end();
+			wrr(
+				res,
+				200,
+				{ "Content-Type": "application/json" },
+				JSON.stringify(db.books)
+			);
 		});
 	} else if (req.method === "GET" && req.url.startsWith("/api/books")) {
 		fs.readFile("db.json", (err, data) => {
@@ -105,12 +121,15 @@ const server = http.createServer((req, res) => {
 				return book.id == bookID;
 			});
 			if (bookInfo.length > 0) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.write(JSON.stringify(bookInfo));
-				res.end();
+				wrr(
+					res,
+					200,
+					{ "Content-Type": "application/json" },
+					JSON.stringify(bookInfo)
+				);
 			}
 		});
-	} else if (req.method === "POST" && req.url.startsWith("/api/users")) {
+	} else if (req.method === "POST" && req.url === "/api/users") {
 		let body = "";
 		fs.readFile("db.json", (err, data) => {
 			if (err) {
@@ -127,9 +146,12 @@ const server = http.createServer((req, res) => {
 					(user) => user.username == body.username
 				);
 				if (isUserExist) {
-					res.writeHead(422, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "This User Already Exist! " }));
-					res.end();
+					wrr(
+						res,
+						409,
+						{ "Content-Type": "application/json" },
+						JSON.stringify({ message: "The User Already Exist!" })
+					);
 				} else {
 					let { name, username } = body;
 					if (name && username) {
@@ -141,21 +163,25 @@ const server = http.createServer((req, res) => {
 							role: "GUEST",
 						};
 						db.users.push(newUser);
-						res.writeHead(422, { "Content-Type": "application/json" });
-						res.write({ message: "This User Successfully Added! " });
-						res.end();
+						wrr(
+							res,
+							201,
+							{ "Content-Type": "application/json" },
+							JSON.stringify({ message: "The User Successfully Added!" })
+						);
 						fs.writeFileSync("db.json", JSON.stringify(db));
 					} else {
-						res.writeHead(400, { "Content-Type": "application/json" });
-						res.write(
-							JSON.stringify({ message: "You Must Enter Both Data! " })
+						wrr(
+							res,
+							400,
+							{ "Content-Type": "application/json" },
+							JSON.stringify({ message: "You Must Enter Both Data!" })
 						);
-						res.end();
 					}
 				}
 			});
 		});
-	} else if (req.method === "POST" && req.url.startsWith("/api/books")) {
+	} else if (req.method === "POST" && req.url === "/api/books") {
 		fs.readFile("db.json", (err, data) => {
 			if (err) {
 				throw err;
@@ -178,15 +204,19 @@ const server = http.createServer((req, res) => {
 						(book) => book.title === title && book.author == author
 					);
 					if (isBookExist) {
-						res.writeHead(401, { "Content-Type": "application/json" });
-						res.write(JSON.stringify({ message: "This Book Already Exist!" }));
-						res.end();
+						wrr(
+							res,
+							400,
+							{ "Content-Type": "application/json" },
+							JSON.stringify({ message: "The Book Already Exist!" })
+						);
 					} else {
-						res.writeHead(201, { "Content-Type": "application/json" });
-						res.write(
+						wrr(
+							res,
+							201,
+							{ "Content-Type": "application/json" },
 							JSON.stringify({ message: "Your Book Successfully Added!" })
 						);
-						res.end();
 						const db = JSON.parse(data);
 						db.books.push(newBook);
 						fs.writeFile("db.json", JSON.stringify(db), () => {
@@ -213,9 +243,12 @@ const server = http.createServer((req, res) => {
 				body = JSON.parse(body);
 
 				if (!isBookExist) {
-					res.writeHead(400, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "The Book Is Not Exist!" }));
-					res.end();
+					wrr(
+						res,
+						400,
+						{ "Content-Type": "application/json" },
+						JSON.stringify({ message: "The Book Is Not Exist!" })
+					);
 				} else {
 					const theBook = db.books.filter((book) => book.id == bookID);
 					const title = body.title || theBook[0].title;
@@ -236,9 +269,12 @@ const server = http.createServer((req, res) => {
 					fs.writeFile("db.json", JSON.stringify(newDB), () => {
 						return 0;
 					});
-					res.writeHead(201, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "The Book Is Updated!" }));
-					res.end();
+					wrr(
+						res,
+						201,
+						{ "Content-Type": "application/json" },
+						JSON.stringify({ message: "The Book Is Updated!" })
+					);
 				}
 			});
 		});
@@ -254,29 +290,29 @@ const server = http.createServer((req, res) => {
 			const userRole = theUser[0].role;
 			if (isUserExist) {
 				if (userRole === "GUEST") {
-					// res.writeHead(400, { "Content-Type": "application/json" });
-					// res.write(JSON.stringify({message:"You Are A Guest, You can't Change The User"}))
 					let body = "";
 					req.on("data", (chunk) => (body += chunk));
 					req.on("end", () => {
 						body = JSON.parse(body);
 						const { name, username } = body;
 						if (body.crime) {
-							res.writeHead(401, { "Content-Type": "application/json" });
-							res.write(
+							wrr(
+								res,
+								400,
+								{ "Content-Type": "application/json" },
 								JSON.stringify({
-									message: "You Can't Change Your Crime! Pls Try Again",
+									message: "You Cannot Change Your Crime! Pls Try Again!",
 								})
 							);
-							res.end();
 						} else if (body.role) {
-							res.writeHead(401, { "Content-Type": "application/json" });
-							res.write(
+							wrr(
+								res,
+								400,
+								{ "Content-Type": "application/json" },
 								JSON.stringify({
-									message: "You Can't Change Your Role! Pls Try Again",
+									message: "You Cannot Change Your Role! Pls Try Again!",
 								})
 							);
-							res.end();
 						} else {
 							const theUser = db.users.filter((user) => user.id == userID);
 							const theNewUser = {
@@ -292,11 +328,14 @@ const server = http.createServer((req, res) => {
 							fs.writeFile("db.json", JSON.stringify(newDB), () => {
 								return 0;
 							});
-							res.writeHead(201, { "Content-Type": "application/json" });
-							res.write(
-								JSON.stringify({ message: "The User Has Been Updated!" })
+							wrr(
+								res,
+								201,
+								{ "Content-Type": "application/json" },
+								JSON.stringify({
+									message: "The User Has Been Updated!",
+								})
 							);
-							res.end();
 						}
 					});
 				} else if (userRole === "ADMIN") {
@@ -310,13 +349,14 @@ const server = http.createServer((req, res) => {
 						const crime = body.crime || theUser[0].crime;
 						const role = body.role || theUser[0].role;
 						if (theUser[0].role === "ADMIN") {
-							res.writeHead(400, { "Content-Type": "application/json" });
-							res.write(
+							wrr(
+								res,
+								400,
+								{ "Content-Type": "application/json" },
 								JSON.stringify({
 									message: "You Cannot Change The Admin's Info!",
 								})
 							);
-							res.end();
 						} else {
 							const userUpdated = {
 								id,
@@ -329,20 +369,35 @@ const server = http.createServer((req, res) => {
 							newUserList.push(userUpdated);
 							const newDB = { users: newUserList, books: db.books };
 							fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
-							res.writeHead(201, { "Content-Type": "application/json" });
-							res.write(JSON.stringify({ message: "The User Updated!" }));
-							res.end();
+							wrr(
+								res,
+								201,
+								{ "Content-Type": "application/json" },
+								JSON.stringify({
+									message: "The User Has Been Updated!",
+								})
+							);
 						}
 					});
 				} else {
-					res.writeHead(201, { "Content-Type": "application/json" });
-					res.write(JSON.stringify({ message: "The User Updated!" }));
-					res.end();
+					wrr(
+						res,
+						400,
+						{ "Content-Type": "application/json" },
+						JSON.stringify({
+							message: "The User Don't Has a Role!",
+						})
+					);
 				}
 			} else {
-				res.writeHead(404, { "Content-Type": "application/json" });
-				res.write(JSON.stringify({ message: "The User Not Found!" }));
-				res.end();
+				wrr(
+					res,
+					404,
+					{ "Content-Type": "application/json" },
+					JSON.stringify({
+						message: "The User Not Found!",
+					})
+				);
 			}
 		});
 	} else if (req.method === "DELETE" && req.url.startsWith("/api/users")) {
@@ -354,22 +409,28 @@ const server = http.createServer((req, res) => {
 			const db = JSON.parse(data);
 			const isUserExist = db.users.some((user) => user.id == userID);
 			if (!isUserExist) {
-				res.writeHead(400, { "Content-Type": "application/json" });
-				res.write(JSON.stringify({ message: "The User Is Not Exist!" }));
-				res.end();
+				wrr(
+					res,
+					404,
+					{ "Content-Type": "application/json" },
+					JSON.stringify({
+						message: "The User Not Found!",
+					})
+				);
 			} else {
 				const newUsers = db.users.filter((user) => user.id != userID);
 				const newDB = { users: newUsers, books: db.books };
 				fs.writeFile("db.json", JSON.stringify(newDB), () => {
 					return 0;
 				});
-				res.writeHead(201, { "Content-Type": "application/json" });
-				res.write(
+				wrr(
+					res,
+					201,
+					{ "Content-Type": "application/json" },
 					JSON.stringify({
-						message: "The User Has Been Successfully Deleted! ",
+						message: "The User Has Been Successfully Deleted!",
 					})
 				);
-				res.end();
 			}
 		});
 	} else if (req.method === "DELETE" && req.url.startsWith("/api/books")) {
@@ -382,15 +443,23 @@ const server = http.createServer((req, res) => {
 			const newBooksList = db.books.filter((book) => book.id != bookID);
 			const isBookExist = db.books.some((book) => book.id == bookID);
 			if (!isBookExist) {
-				res.writeHead(400, { "Content-Type": "application/json" });
-				res.write(JSON.stringify({ message: "The Is Not Exist!" }));
-				res.end();
-			} else {
-				res.writeHead(201, { "Content-Type": "application/json" });
-				res.write(
-					JSON.stringify({ message: "The Book Has Been Successfully Deleted!" })
+				wrr(
+					res,
+					404,
+					{ "Content-Type": "application/json" },
+					JSON.stringify({
+						message: "The Book Not Found!",
+					})
 				);
-				res.end();
+			} else {
+				wrr(
+					res,
+					201,
+					{ "Content-Type": "application/json" },
+					JSON.stringify({
+						message: "The Book Has Been Successfully Deleted!",
+					})
+				);
 				const newDB = { users: db.users, books: newBooksList };
 				fs.writeFile("db.json", JSON.stringify(newDB), () => {
 					return 0;
@@ -429,27 +498,34 @@ const server = http.createServer((req, res) => {
 							managers: db.managers,
 						};
 						fs.writeFile("db.json", JSON.stringify(newDB), () => 0);
-						res.writeHead(201, { "Content-Type": "application/json" });
-						res.write(
-							JSON.stringify({ message: "This User Has Been Updated To Admin" })
+						wrr(
+							res,
+							201,
+							{ "Content-Type": "application/json" },
+							JSON.stringify({
+								message: "The User Has Been Updated To Admin!",
+							})
 						);
-						res.end();
 					} else {
-						res.writeHead(401, { "Content-Type": "application/json" });
-						res.write(
-							JSON.stringify({ message: "This User Is Already Admin" })
+						wrr(
+							res,
+							409,
+							{ "Content-Type": "application/json" },
+							JSON.stringify({
+								message: "The User Is Already Admin!",
+							})
 						);
-						res.end();
 					}
 				});
 			} else {
-				res.writeHead(403, { "Content-Type": "application/json" });
-				res.write(
+				wrr(
+					res,
+					403,
+					{ "Content-Type": "application/json" },
 					JSON.stringify({
 						message: "You Don't Have Permission To Enter This Section!",
 					})
 				);
-				res.end();
 			}
 		});
 	}
