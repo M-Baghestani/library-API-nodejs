@@ -3,22 +3,13 @@ const fs = require("fs");
 const url = require("url");
 const db = require("./db.json");
 const wrr = require("./funcs/writeFunc.js");
+const bookController = require('./controller/bookController.js');
+const userController = require('./controller/userController.js');
 const { readDB, writeDB } = require("./funcs/dbhelper.js");
 
 const server = http.createServer((req, res) => {
 	if (req.method === "GET" && req.url === "/api/users") {
-		fs.readFile("db.json", (err, data) => {
-			if (err) {
-				throw err;
-			}
-			const convertedData = JSON.parse(data);
-			wrr(
-				res,
-				200,
-				{ "Content-Type": "application/json" },
-				JSON.stringify(convertedData.users)
-			);
-		});
+		userController.getAll(req,res)
 	} else if (req.method === "POST" && req.url === "/api/books/reserve") {
 		fs.readFile("db.json", (err, data) => {
 			if (err) {
@@ -74,63 +65,12 @@ const server = http.createServer((req, res) => {
 		});
 	} else if (req.method === "GET" && req.url.startsWith("/api/users")) {
 		const userID = url.parse(req.url, true).query.id;
-		fs.readFile("db.json", (err, data) => {
-			if (err) {
-				throw err;
-			}
-			const db = JSON.parse(data);
-			const result = db.users.filter((user) => {
-				return user.id === parseInt(userID);
-			});
-			console.log(result);
-			if (result.length > 0) {
-				wrr(
-					res,
-					200,
-					{ "Content-Type": "application/json" },
-					JSON.stringify(result)
-				);
-			} else {
-				wrr(
-					res,
-					400,
-					{ "Content-Type": "application/json" },
-					JSON.stringify({ message: "You Must Enter a Valid Value" })
-				);
-			}
-		});
+		userController.getOne(req,res,userID)
 	} else if (req.method === "GET" && req.url === "/api/books") {
-		fs.readFile("db.json", (err, data) => {
-			if (err) {
-				throw err;
-			}
-			const db = JSON.parse(data);
-			wrr(
-				res,
-				200,
-				{ "Content-Type": "application/json" },
-				JSON.stringify(db.books)
-			);
-		});
+		bookController.getAll(req,res)
 	} else if (req.method === "GET" && req.url.startsWith("/api/books")) {
-		fs.readFile("db.json", (err, data) => {
-			if (err) {
-				throw err;
-			}
-			const db = JSON.parse(data);
-			const bookID = url.parse(req.url, true).query.id;
-			const bookInfo = db.books.filter((book) => {
-				return book.id == bookID;
-			});
-			if (bookInfo.length > 0) {
-				wrr(
-					res,
-					200,
-					{ "Content-Type": "application/json" },
-					JSON.stringify(bookInfo)
-				);
-			}
-		});
+		const bookID = url.parse(req.url,true).query.id
+		bookController.getOne(req,res,bookID)
 	} else if (req.method === "POST" && req.url === "/api/users") {
 		let body = "";
 		fs.readFile("db.json", (err, data) => {
