@@ -24,7 +24,8 @@ const getAll = async (req, res) => {
 
 const getOne = async (req, res) => {
   try {
-    const userInfo = userModel.getOne(id);
+    const userID = url.parse(req.url, true).query.id;
+    const userInfo = await userModel.getOne(userID);
     wrr(
       res,
       200,

@@ -9,7 +9,7 @@ const getAll = async () => {
 
 const getOne = (id) => {
   return new Promise((resolve, reject) => {
-    const userInfo = db.users.filter((user) => user.id == id);
+    const userInfo = db.users.find((user) => user.id == id);
     resolve(userInfo);
   });
 };
