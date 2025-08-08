@@ -1,57 +1,64 @@
 {
-	"users": [
-		{
-			"id": 2,
-			"name": "Akbar Baghestani",
-			"username": "akbar2080",
-			"crime": 0,
-			"role": "ADMIN"
-		},
-		{
-			"id": "003986c9-5885-4758-bdea-d7cf7e3d185b",
-			"name": "Mohammad Hossein",
-			"username": "test",
-			"crime": 20000,
-			"role": "ADMIN"
-		},
-		{
-			"id": "9104d3e8-fa49-44fd-a6ad-9bf7100b2976",
-			"name": "Mohammad Hossein2",
-			"username": "test",
-			"crime": 0,
-			"role": "ADMIN"
-		}
-	],
-	"books": [
-		{
-			"id": "34884361-c995-48cc-95aa-d97ef7d25bca",
-			"title": "Mohammad Hossein",
-			"author": "test2",
-			"price": 20000,
-			"free": 0
-		},
-		{
-			"id": "1",
-			"title": "Mohammad Hossein",
-			"author": "TEST",
-			"price": 2,
-			"free": 0
-		}
-	],
-	"reserves": [
-		{
-			"user_id": "2",
-			"book_id": "1",
-			"reserve_date": "2025-08-06",
-			"duration_days": "5"
-		}
-	],
-	"managers": [
-		{
-			"id": "2",
-			"name": "Mohammad Baghestani",
-			"username": "mhb2080s",
-			"role": "MANAGER"
-		}
-	]
+  "users": [
+    {
+      "id": 2,
+      "name": "Akbar Baghestani",
+      "username": "akbar2080",
+      "crime": 0,
+      "role": "ADMIN"
+    },
+    {
+      "id": "003986c9-5885-4758-bdea-d7cf7e3d185b",
+      "name": "Mohammad Hossein",
+      "username": "mhb2080",
+      "crime": 20000,
+      "role": "ADMIN"
+    },
+    {
+      "id": "9104d3e8-fa49-44fd-a6ad-9bf7100b2976",
+      "name": "Mohammad Hossein2",
+      "username": "test",
+      "crime": 0,
+      "role": "ADMIN"
+    },
+    {
+      "id": "2099aed5-ca8a-4335-abb3-70ae011dda47",
+      "name": "Motahare Sadat",
+      "username": "Mth1391",
+      "crime": 0,
+      "role": "GUEST"
+    }
+  ],
+  "books": [
+    {
+      "id": "34884361-c995-48cc-95aa-d97ef7d25bca",
+      "title": "Mohammad Hossein",
+      "author": "test2",
+      "price": 20000,
+      "free": 0
+    },
+    {
+      "id": "f21e9967-925e-474e-a6bb-154274f38146",
+      "title": "Mohammad book",
+      "author": "TEST",
+      "price": 2,
+      "free": 1
+    }
+  ],
+  "reserves": [
+    {
+      "user_id": "2",
+      "book_id": "1",
+      "reserve_date": "2025-08-06",
+      "duration_days": "5"
+    }
+  ],
+  "managers": [
+    {
+      "id": "2",
+      "name": "Mohammad Baghestani",
+      "username": "mhb2080s",
+      "role": "MANAGER"
+    }
+  ]
 }

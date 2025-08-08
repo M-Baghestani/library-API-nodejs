@@ -1,20 +1,31 @@
-const fs = require('fs');
-const db = require('../db.json');
+const fs = require("fs");
+const db = require("../db.json");
+const path = require("path");
+const dbPath = path.join(__dirname, "../db.json");
 
-const get = () => {
-    return new Promise((resolve,reject) => {
-        resolve(db.users)
-    })
-}
+const getAll = async () => {
+  return await db.users;
+};
 
 const getOne = (id) => {
-    return new Promise((resolve,reject) => {
-        const userInfo = db.users.filter(user => user.id == id)
-        resolve(userInfo)
-    })
-}
+  return new Promise((resolve, reject) => {
+    const userInfo = db.users.filter((user) => user.id == id);
+    resolve(userInfo);
+  });
+};
+
+const write = async (data) => {
+  await db.users.push(data);
+  fs.writeFile(dbPath, JSON.stringify(db), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  return await { message: "The User Successfully Added!" };
+};
 
 module.exports = {
-    get,
-    getOne
-}
+  getAll,
+  getOne,
+  write,
+};
