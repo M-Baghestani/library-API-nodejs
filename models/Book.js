@@ -37,9 +37,22 @@ const update = async (data, bookID) => {
   });
   return await { message: "the book successfully edited!" };
 };
+
+const removeOne = async (bookID) => {
+  const newBookDB = await db.books.filter((book) => book.id != bookID);
+  const newDB = { ...db, books: newBookDB };
+
+  fs.writeFile(dbPath, JSON.stringify(newDB), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  return await { message: "The Book has been successfully removed!" };
+};
 module.exports = {
   getAll,
   getOne,
   write,
   update,
+  removeOne,
 };

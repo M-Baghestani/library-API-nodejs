@@ -50,8 +50,8 @@ const createUser = async (req, res) => {
   });
   req.on("end", async () => {
     body = JSON.parse(body);
-    const isExistUser = usersDB.some((user) => user.username == body.username);
-    if (isExistUser) {
+    const isUserExist = usersDB.some((user) => user.username == body.username);
+    if (isUserExist) {
       wrr(
         res,
         409,
@@ -109,9 +109,28 @@ const updateUser = async (req, res) => {
   });
 };
 
+const removeOne = async (req, res) => {
+  const userDB = await userModel.getAll();
+  const userID = url.parse(req.url, true).query.id;
+
+  const isUserExist = userDB.some((user) => user.id == userID);
+  if (isUserExist) {
+    const msg = await userModel.removeOne(userID);
+    wrr(res, 201, { "content-type": "application/json" }, JSON.stringify(msg));
+  } else {
+    wrr(
+      res,
+      404,
+      { "content-type": "application/json" },
+      JSON.stringify({ message: "The User is not exist" })
+    );
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
   createUser,
   updateUser,
+  removeOne,
 };

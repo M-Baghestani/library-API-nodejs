@@ -112,9 +112,29 @@ const update = async (req, res) => {
   });
 };
 
+const removeOne = async (req, res) => {
+  const bookID = url.parse(req.url, true).query.id;
+  const bookDb = await BookModel.getAll();
+
+  const isBookExist = bookDb.filter((book) => book.id == bookID);
+
+  if (isBookExist) {
+    const msg = await BookModel.removeOne(bookID);
+    wrr(res, 201, { "content-type": "application/json" }, JSON.stringify(msg));
+  } else {
+    wrr(
+      res,
+      404,
+      { "content-type": "application/json" },
+      JSON.stringify({ message: "the book is not exist!" })
+    );
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
   createBook,
   update,
+  removeOne,
 };

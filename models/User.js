@@ -39,9 +39,21 @@ const update = async (data, id) => {
   return { message: "The User Successfully updated!" };
 };
 
+const removeOne = async (id) => {
+  const newUserDb = db.users.filter((user) => user.id != id);
+  const newDB = { ...db, users: newUserDb };
+  await fs.writeFile(dbPath, JSON.stringify(newDB), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  return await { message: "The user successfully deleted!" };
+};
+
 module.exports = {
   getAll,
   getOne,
   write,
   update,
+  removeOne,
 };

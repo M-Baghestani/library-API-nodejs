@@ -20,13 +20,6 @@
       "username": "Mth1391",
       "crime": 0,
       "role": "GUEST"
-    },
-    {
-      "id": 2,
-      "name": "sdfsfdsdf",
-      "username": "wrewrwr",
-      "crime": 0,
-      "role": "ADMIN"
     }
   ],
   "books": [
@@ -36,13 +29,6 @@
       "author": "TEST",
       "price": 2,
       "free": 1
-    },
-    {
-      "id": "34884361-c995-48cc-95aa-d97ef7d25bca",
-      "title": "test title2",
-      "author": "test author",
-      "price": 324000,
-      "free": 0
     }
   ],
   "reserves": [

@@ -80,77 +80,9 @@ const server = http.createServer((req, res) => {
   } else if (req.method === "PUT" && req.url.startsWith("/api/users")) {
     userController.updateUser(req, res);
   } else if (req.method === "DELETE" && req.url.startsWith("/api/users")) {
-    const userID = url.parse(req.url, true).query.id;
-    fs.readFile("db.json", (err, data) => {
-      if (err) {
-        throw err;
-      }
-      const db = JSON.parse(data);
-      const isUserExist = db.users.some((user) => user.id == userID);
-      if (!isUserExist) {
-        wrr(
-          res,
-          404,
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            message: "The User Not Found!",
-          })
-        );
-      } else {
-        const newUsers = db.users.filter((user) => user.id != userID);
-        const newDB = {
-          users: newUsers,
-          books: db.books,
-          reserves: db.reserves,
-          managers: db.managers,
-        };
-        writeDB(newDB);
-        wrr(
-          res,
-          201,
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            message: "The User Has Been Successfully Deleted!",
-          })
-        );
-      }
-    });
+    userController.removeOne(req, res);
   } else if (req.method === "DELETE" && req.url.startsWith("/api/books")) {
-    fs.readFile("db.json", (err, data) => {
-      if (err) {
-        throw err;
-      }
-      const db = JSON.parse(data);
-      const bookID = url.parse(req.url, true).query.id;
-      const newBooksList = db.books.filter((book) => book.id != bookID);
-      const isBookExist = db.books.some((book) => book.id == bookID);
-      if (!isBookExist) {
-        wrr(
-          res,
-          404,
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            message: "The Book Not Found!",
-          })
-        );
-      } else {
-        wrr(
-          res,
-          201,
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            message: "The Book Has Been Successfully Deleted!",
-          })
-        );
-        const newDB = {
-          users: db.users,
-          books: newBooksList,
-          reserves: db.reserves,
-          managers: db.managers,
-        };
-        writeDB(newDB);
-      }
-    });
+    bookController.removeOne(req, res);
   } else if (req.method === "POST" && req.url.startsWith("/api/makeAdmin")) {
     fs.readFile("db.json", (err, data) => {
       if (err) {
