@@ -1,6 +1,7 @@
 const fs = require("fs");
 const wrr = require("../funcs/writeFunc");
 const userModel = require("./../models/User");
+const url = require("url");
 
 const getAll = async (req, res) => {
   try {
@@ -76,8 +77,41 @@ const createUser = async (req, res) => {
   });
 };
 
+const updateUser = async (req, res) => {
+  const userDB = await userModel.getAll();
+  const oldUserID = url.parse(req.url, true).query.id;
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+  req.on("end", async () => {
+    body = JSON.parse(body);
+    const isUserExist = userDB.some((user) => user.id == oldUserID);
+    if (isUserExist) {
+      const oldUser = userDB.find((user) => user.id == oldUserID);
+      oldUser.name = body.name || oldUser.name;
+      oldUser.username = body.username || oldUser.username;
+      const messageUpdate = await userModel.update(oldUser, oldUserID);
+      wrr(
+        res,
+        201,
+        { "content-type": "application/json" },
+        JSON.stringify(messageUpdate)
+      );
+    } else {
+      wrr(
+        res,
+        400,
+        { "content-type": "application/json" },
+        JSON.stringify({ message: "The user is not exist!" })
+      );
+    }
+  });
+};
+
 module.exports = {
   getAll,
   getOne,
   createUser,
+  updateUser,
 };

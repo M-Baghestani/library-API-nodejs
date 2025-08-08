@@ -27,8 +27,19 @@ const write = async (data) => {
   return await { message: "The book successfully added!" };
 };
 
+const update = async (data, bookID) => {
+  const newBookDB = await db.books.filter((book) => book.id != bookID);
+  await newBookDB.push(data);
+  fs.writeFile(dbPath, JSON.stringify({ ...db, books: newBookDB }), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  return await { message: "the book successfully edited!" };
+};
 module.exports = {
   getAll,
   getOne,
   write,
+  update,
 };

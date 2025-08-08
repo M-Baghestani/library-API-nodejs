@@ -24,8 +24,24 @@ const write = async (data) => {
   return await { message: "The User Successfully Added!" };
 };
 
+const update = async (data, id) => {
+  const newDBWithoutTheUser = db.users.filter((user) => user.id != id);
+  newDBWithoutTheUser.push(data);
+  const newDB = {
+    ...db,
+    users: newDBWithoutTheUser,
+  };
+  fs.writeFile(dbPath, JSON.stringify(newDB), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  return { message: "The User Successfully updated!" };
+};
+
 module.exports = {
   getAll,
   getOne,
   write,
+  update,
 };

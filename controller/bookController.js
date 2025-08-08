@@ -1,6 +1,6 @@
 const BookModel = require("../models/Book.js");
 const wrr = require("./../funcs/writeFunc.js");
-
+const url = require("url");
 const getAll = async (req, res) => {
   try {
     const books = await BookModel.getAll();
@@ -77,8 +77,44 @@ const createBook = async (req, res) => {
   });
 };
 
+const update = async (req, res) => {
+  const bookDB = await BookModel.getAll();
+  const bookID = url.parse(req.url, true).query.id;
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+  req.on("end", async () => {
+    body = JSON.parse(body);
+    const isBookExist = bookDB.some((book) => book.id == bookID);
+    if (isBookExist) {
+      const theBook = bookDB.find((book) => book.id == bookID);
+      theBook.title = body.title || theBook.title;
+      theBook.author = body.author || theBook.author;
+      theBook.price = body.price || theBook.price;
+      theBook.free = body.free || theBook.free;
+
+      const messageUpdate = await BookModel.update(theBook, bookID);
+      wrr(
+        res,
+        201,
+        { "content-type": "application/json" },
+        JSON.stringify(messageUpdate)
+      );
+    } else {
+      wrr(
+        res,
+        201,
+        { "content-type": "application/json" },
+        JSON.stringify({ message: "The Book is not exist!" })
+      );
+    }
+  });
+};
+
 module.exports = {
   getAll,
   getOne,
   createBook,
+  update,
 };
