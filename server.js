@@ -5,64 +5,65 @@ const db = require("./db.json");
 const wrr = require("./funcs/writeFunc.js");
 const bookController = require("./controller/bookController.js");
 const userController = require("./controller/userController.js");
+const reserveController = require("./controller/reserveController.js");
 const { readDB, writeDB } = require("./funcs/dbhelper.js");
 
 const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/api/users") {
     userController.getAll(req, res);
   } else if (req.method === "POST" && req.url === "/api/books/reserve") {
-    fs.readFile("db.json", (err, data) => {
-      if (err) {
-        throw err;
-      }
-      let body = "";
-      req.on("data", (chunk) => {
-        body += chunk;
-      });
-      req.on("end", () => {
-        const { user_id, book_id, reserve_date, duration_days } =
-          JSON.parse(body);
-        if (!user_id || !book_id || !reserve_date || !duration_days) {
-          wrr(
-            res,
-            400,
-            { "Content-Type": "application/json" },
-            JSON.stringify({ message: "Pls Enter Your Info Completely" })
-          );
-        } else {
-          const db = JSON.parse(data);
-          const isFreeBook = db.books.some(
-            (book) => book.id == book_id && book.free == 1
-          );
-
-          if (isFreeBook) {
-            const theBook = db.books.filter((book) => book.id == book_id);
-            theBook[0].free = 0;
-            db.reserves.push({
-              user_id,
-              book_id,
-              reserve_date,
-              duration_days,
-            });
-            wrr(
-              res,
-              201,
-              { "Content-Type": "application/json" },
-              JSON.stringify({ message: "The Book Successfully Reserved!" })
-            );
-            // fs.writeFile("db.json", JSON.stringify(db), () => 0);
-            writeDB(db);
-          } else {
-            wrr(
-              res,
-              409,
-              { "Content-Type": "application/json" },
-              JSON.stringify({ message: "The Book Already Reserved!" })
-            );
-          }
-        }
-      });
-    });
+    // fs.readFile("db.json", (err, data) => {
+    //   if (err) {
+    //     throw err;
+    //   }
+    //   let body = "";
+    //   req.on("data", (chunk) => {
+    //     body += chunk;
+    //   });
+    //   req.on("end", () => {
+    //     const { user_id, book_id, reserve_date, duration_days } =
+    //       JSON.parse(body);
+    //     if (!user_id || !book_id || !reserve_date || !duration_days) {
+    //       wrr(
+    //         res,
+    //         400,
+    //         { "Content-Type": "application/json" },
+    //         JSON.stringify({ message: "Pls Enter Your Info Completely" })
+    //       );
+    //     } else {
+    //       const db = JSON.parse(data);
+    //       const isFreeBook = db.books.some(
+    //         (book) => book.id == book_id && book.free == 1
+    //       );
+    //       if (isFreeBook) {
+    //         const theBook = db.books.filter((book) => book.id == book_id);
+    //         theBook[0].free = 0;
+    //         db.reserves.push({
+    //           user_id,
+    //           book_id,
+    //           reserve_date,
+    //           duration_days,
+    //         });
+    //         wrr(
+    //           res,
+    //           201,
+    //           { "Content-Type": "application/json" },
+    //           JSON.stringify({ message: "The Book Successfully Reserved!" })
+    //         );
+    //         // fs.writeFile("db.json", JSON.stringify(db), () => 0);
+    //         writeDB(db);
+    //       } else {
+    //         wrr(
+    //           res,
+    //           409,
+    //           { "Content-Type": "application/json" },
+    //           JSON.stringify({ message: "The Book Already Reserved!" })
+    //         );
+    //       }
+    //     }
+    //   });
+    // });
+    reserveController.reserve(req, res);
   } else if (req.method === "GET" && req.url.startsWith("/api/users")) {
     const userID = url.parse(req.url, true).query.id;
     userController.getOne(req, res, userID);
