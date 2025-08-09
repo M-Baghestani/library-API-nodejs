@@ -13,13 +13,6 @@
       "username": "test",
       "crime": 0,
       "role": "ADMIN"
-    },
-    {
-      "id": "1",
-      "name": "Motahare Sadat",
-      "username": "Mth1391",
-      "crime": 0,
-      "role": "GUEST"
     }
   ],
   "books": [
@@ -56,6 +49,12 @@
       "id": "2",
       "name": "Mohammad Baghestani",
       "username": "mhb2080s",
+      "role": "MANAGER"
+    },
+    {
+      "id": "1",
+      "name": "Motahare Sadat",
+      "username": "Mth1391",
       "role": "MANAGER"
     }
   ]

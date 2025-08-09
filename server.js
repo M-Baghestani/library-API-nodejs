@@ -6,6 +6,7 @@ const wrr = require("./funcs/writeFunc.js");
 const bookController = require("./controller/bookController.js");
 const userController = require("./controller/userController.js");
 const reserveController = require("./controller/reserveController.js");
+const managerController = require("./controller/managerController.js");
 const { readDB, writeDB } = require("./funcs/dbhelper.js");
 
 const server = http.createServer((req, res) => {
@@ -33,69 +34,8 @@ const server = http.createServer((req, res) => {
     userController.removeOne(req, res);
   } else if (req.method === "DELETE" && req.url.startsWith("/api/books")) {
     bookController.removeOne(req, res);
-  } else if (req.method === "POST" && req.url.startsWith("/api/makeAdmin")) {
-    fs.readFile("db.json", (err, data) => {
-      if (err) {
-        throw err;
-      }
-      const managerID = url.parse(req.url, true).query.id;
-      const db = JSON.parse(data);
-      const isManagerExist = db.managers.some(
-        (manager) => managerID == manager.id
-      );
-      if (isManagerExist) {
-        let body = "";
-        req.on("data", (chunk) => (body += chunk));
-        req.on("end", () => {
-          const { id, role } = JSON.parse(body);
-          const userINFO = db.users.filter((user) => user.id == id);
-          if (userINFO[0].role != "ADMIN") {
-            const userUpdate = {
-              id,
-              name: userINFO[0].name,
-              username: userINFO[0].username,
-              crime: 0,
-              role,
-            };
-            const newUserList = db.users.filter((user) => user.id != id);
-            newUserList.push(userUpdate);
-            const newDB = {
-              users: newUserList,
-              books: db.books,
-              reserves: db.reserves,
-              managers: db.managers,
-            };
-            writeDB(newDB);
-            wrr(
-              res,
-              201,
-              { "Content-Type": "application/json" },
-              JSON.stringify({
-                message: "The User Has Been Updated To Admin!",
-              })
-            );
-          } else {
-            wrr(
-              res,
-              409,
-              { "Content-Type": "application/json" },
-              JSON.stringify({
-                message: "The User Is Already Admin!",
-              })
-            );
-          }
-        });
-      } else {
-        wrr(
-          res,
-          403,
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            message: "You Don't Have Permission To Enter This Section!",
-          })
-        );
-      }
-    });
+  } else if (req.method === "POST" && req.url.startsWith("/api/makeManager")) {
+    managerController.addManager(req, res);
   }
 });
 
